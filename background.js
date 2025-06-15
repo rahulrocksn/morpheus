@@ -2,6 +2,7 @@
 
 // Listens for messages from the popup script.
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    // Handle a command to apply new styles
     if (request.command) {
         (async () => {
             try {
@@ -31,6 +32,33 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             } catch (error) {
                 console.error("Morpheus Error:", error);
                 sendResponse({ status: `An error occurred: ${error.message}` });
+            }
+        })();
+        return true; // Indicate async response.
+    }
+
+    // Handle a request to revert all changes for the current site
+    if (request.action === 'revert') {
+        (async () => {
+            try {
+                const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                if (!tab || !tab.url) {
+                    sendResponse({ status: "No active tab found." });
+                    return;
+                }
+                const { hostname } = new URL(tab.url);
+
+                // Remove the saved settings for the site
+                await chrome.storage.local.remove(hostname);
+                
+                // Reload the page to clear any injected styles
+                await chrome.tabs.reload(tab.id);
+
+                sendResponse({ status: `Effects for ${hostname} reverted.`});
+
+            } catch (error) {
+                console.error("Morpheus Revert Error:", error);
+                sendResponse({ status: `An error occurred during revert: ${error.message}`});
             }
         })();
         return true; // Indicate async response.
@@ -140,8 +168,13 @@ async function generateInstructionsFromCommand(command, url) {
         const result = await response.json();
         const rawText = result.candidates[0]?.content?.parts[0]?.text || '{}';
         
-        // Clean up the response to ensure it's valid JSON
-        const cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+        // ** FIX **: Clean up the response to remove markdown and control characters before parsing.
+        const cleanedText = rawText
+            .replace(/```json/g, '')
+            .replace(/```/g, '')
+            .replace(/[\n\r\t]/g, '') // Remove newlines, carriage returns, and tabs
+            .trim();
+            
         return JSON.parse(cleanedText);
 
     } catch (error) {
