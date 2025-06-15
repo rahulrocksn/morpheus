@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morpheus</title>
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            width: 300px;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white p-4">
+
+    <div class="flex items-center justify-between mb-4">
+        <h1 class="text-xl font-bold">Morpheus</h1>
+        <button id="speech-to-text" class="text-gray-400 hover:text-white">
+            <i class="fas fa-microphone"></i>
+        </button>
+    </div>
+
+    <textarea id="command-input" class="w-full h-24 bg-gray-800 border border-gray-700 rounded-lg p-2 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="e.g., 'make this page dark mode' or 'summarize this article'"></textarea>
+
+    <button id="apply-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg mt-4 transition-colors">
+        Apply Magic
+    </button>
+    
+    <div id="response" class="mt-4 text-sm text-gray-400"></div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
